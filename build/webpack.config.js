@@ -34,5 +34,4 @@ module.exports = {
     // output directory is ./dist relative to git/npm repo
     path: path.resolve(__dirname, '..', 'dist'),
   },
-  target: 'node'
 }

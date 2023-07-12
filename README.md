@@ -1,7 +1,10 @@
-## This repository is no longer actively maintained, but the library is functional. ##
+This repository forks the [original Planout library](https://github.com/rawls238/PlanOut.js) in order to modify build settings to remove reliance on Node and node globals for comaptibility with Vite which is ESM only. This is in service of transitioning client repos
+that rely on Planout to Vue 3. For reference see Vite's official explanation for using [ES modules](https://v2.vitejs.dev/guide/why.html#the-problems) exclusively and this [github issue](https://github.com/vitejs/vite/issues/728) which mirrors the errors produced by using the original Planout lib.
 
+## This repository is no longer actively maintained, but the library is functional.
 
 # PlanOut.js
+
 [![Build Status](https://travis-ci.org/rawls238/PlanOut.js.svg?branch=master)](https://travis-ci.org/rawls238/PlanOut.js)
 [![npm downloads](https://img.shields.io/npm/dm/planout.svg?style=flat-square)](https://www.npmjs.com/package/planout)
 
@@ -23,9 +26,9 @@ npm install planout
 ## Comparison with Reference Implementation
 
 PlanOut.js provides an implementation of all PlanOut features (including the
-experiment class, interpreter, and namespaces). The underlying randomization ops in the JavaScript implementation return different results for efficiency reasons. If you are using PlanOut cross-platform and want to enable compatibility mode then you can enable it by utilizing the [planout_core_compatible.js](dist/planout_core_compatible.js) distribution bundle instead of the default ```planout.js``` bundle. You can also utilize `v2.0.2` which contains both compat and non-compat modes in the main distribution.
+experiment class, interpreter, and namespaces). The underlying randomization ops in the JavaScript implementation return different results for efficiency reasons. If you are using PlanOut cross-platform and want to enable compatibility mode then you can enable it by utilizing the [planout_core_compatible.js](dist/planout_core_compatible.js) distribution bundle instead of the default `planout.js` bundle. You can also utilize `v2.0.2` which contains both compat and non-compat modes in the main distribution.
 
-The ```planout_core_compatible.js``` bundle should be used only if you want your random operation results to match that of the results from other planout implementations (java, python, etc). The filesize of the ```planout_core_compatible.js``` bundle is fairly larger (by ~100kb) and random operations are processed slower.
+The `planout_core_compatible.js` bundle should be used only if you want your random operation results to match that of the results from other planout implementations (java, python, etc). The filesize of the `planout_core_compatible.js` bundle is fairly larger (by ~100kb) and random operations are processed slower.
 
 ## Usage
 
@@ -35,7 +38,6 @@ This is how you would use PlanOut.js in ES6 to create an experiment:
 import * as PlanOut from "planout";
 
 class MyExperiment extends PlanOut.Experiment {
-
   configureLogger() {
     return;
     //configure logger
@@ -52,7 +54,7 @@ class MyExperiment extends PlanOut.Experiment {
 
   setup() {
     //set experiment name, etc.
-    this.setName('MyExperiment');
+    this.setName("MyExperiment");
   }
 
   /*
@@ -65,52 +67,55 @@ class MyExperiment extends PlanOut.Experiment {
   }
 
   assign(params, args) {
-    params.set('foo', new PlanOut.Ops.Random.UniformChoice({choices: ['a', 'b'], 'unit': args.userId}));
+    params.set(
+      "foo",
+      new PlanOut.Ops.Random.UniformChoice({
+        choices: ["a", "b"],
+        unit: args.userId,
+      })
+    );
   }
-
 }
 ```
 
 Then, to use this experiment you would simply need to do:
 
 ```javascript
-var exp = new MyExperiment({userId: user.id });
-console.log("User has foo param set to " + exp.get('foo'));
+var exp = new MyExperiment({ userId: user.id });
+console.log("User has foo param set to " + exp.get("foo"));
 ```
 
 If you wanted to run the experiment in a namespace you would do:
 
 ```javascript
-
 class MyNameSpace extends PlanOut.Namespace.SimpleNamespace {
-
   setupDefaults() {
     this.numSegments = 100;
   }
 
   setup() {
-    this.setName('MyNamespace');
-    this.setPrimaryUnit('userId');
+    this.setName("MyNamespace");
+    this.setPrimaryUnit("userId");
   }
 
   setupExperiments() {
-    this.addExperiment('MyExperiment', MyExperiment, 50);
+    this.addExperiment("MyExperiment", MyExperiment, 50);
   }
 }
 ```
 
 Then, to use the namespace you would do:
+
 ```javascript
-var namespace = new MyNamespace({userId: user.id });
-console.log("User has foo param set to " + namespace.get('foo'));
+var namespace = new MyNamespace({ userId: user.id });
+console.log("User has foo param set to " + namespace.get("foo"));
 ```
 
-Note that the import for PlanOut has changed as of v5. The update modified the way that users should import PlanOut from ```import PlanOut from 'planout';``` to  ```import * as PlanOut from "planout";``` 
+Note that the import for PlanOut has changed as of v5. The update modified the way that users should import PlanOut from `import PlanOut from 'planout';` to `import * as PlanOut from "planout";`
 
 An example of using PlanOut.js with ES5 can be [found here](https://github.com/rawls238/PlanOut.js/blob/master/examples/sample_planout_es5.js).
 
 An example with the PlanOut interpreter can be [found here](https://github.com/rawls238/PlanOut.js/blob/master/examples/sample_interpreter_es5.js).
-
 
 ## Experimental Overrides
 
@@ -142,6 +147,7 @@ getOverrides() {
 Local overrides are basically client-side overrides you can set via query parameters or via localStorage.
 
 For example, suppose you want to override the show_text variable to be 'test' locally. You would simply do
+
 ```
 http://[some_url]?experimentOverride=Experiment1&show_text=test
 ```
@@ -152,26 +158,25 @@ Note that in both cases exposure will be logged as though users had been randoml
 
 The primary use of global overrides should be for feature rollouts and the primary use of local overrides should be for local testing
 
-
 ## Registering experiment inputs
 
-PlanOut.js comes packaged with an ```ExperimentSetup``` utility to make it easier to register experiment inputs outside from experiment initialization.
+PlanOut.js comes packaged with an `ExperimentSetup` utility to make it easier to register experiment inputs outside from experiment initialization.
 
-By calling ```ExperimentSetup.registerExperimentInput('key', 'value', [optional namespace name])```, you can register a particular value as an input to either all namespaces (by not passing the third argument, it assumes that this should be registered as an input across all experiments) or to a particular namespace (by passing the namespace name as the third argument).
+By calling `ExperimentSetup.registerExperimentInput('key', 'value', [optional namespace name])`, you can register a particular value as an input to either all namespaces (by not passing the third argument, it assumes that this should be registered as an input across all experiments) or to a particular namespace (by passing the namespace name as the third argument).
 
 This allows you to keep your namespace class definition and initialization separate from your core application bootstrapping and simply makes it necessary to call ExperimentSetup when you have fetched the necessary inputs.
 
 For instance, one could have a namespace defined in a file called 'mynamespace.js'
 
 ```javascript
-var namespace = new MyNamespace({ 'foo': 'bar'});
+var namespace = new MyNamespace({ foo: "bar" });
 ```
 
 and register a user identifier input to it when the application bootstraps and fetches user information.
 
 ```javascript
 getUserInfo().then((response) => {
-  ExperimentSetup.registerExperimentInput('userid', response.userId);
+  ExperimentSetup.registerExperimentInput("userid", response.userId);
 });
 ```
 
@@ -205,7 +210,7 @@ Here are several implementations of the log function using popular analytics lib
 Both Mixpanel and Amplitude effectively have the same API for logging events so just swap out the last line depending on which library you're using.
 
 This log function brings the inputs and params fields onto the top level event object so that they're queryable in Mixpanel / Amplitude and uses the
-following as the event name ```[Experiment Name] - [Log Type]``` so for exposure logs it would look like ```[Experiment Name] - EXPOSURE```.
+following as the event name `[Experiment Name] - [Log Type]` so for exposure logs it would look like `[Experiment Name] - EXPOSURE`.
 
 ```javascript
 log(eventObj) {
@@ -231,14 +236,15 @@ log(eventObj) {
   return amplitude.logEvent(eventName, eventObj);
 }
 ```
+
 #### [Google Analytics](https://google.com/analytics/)
 
 Google Analytics unfortunately has a relatively weak events API compared to Mixpanel and Amplitude, which means that we have to forego some event fields when using it.
 
 Here is the anatomy of the resulting log function:
 
-The event category field to equal ```EXPERIMENT``` so that all experiment events are grouped under the same category.
-The event name is [Experiment Name] - [Log Type] so for exposure logs it would look like ```[Experiment Name] - EXPOSURE```.
+The event category field to equal `EXPERIMENT` so that all experiment events are grouped under the same category.
+The event name is [Experiment Name] - [Log Type] so for exposure logs it would look like `[Experiment Name] - EXPOSURE`.
 The event label takes all experiment parameter values and joins them together into a comma-delimited single string due to the constraints of the API.
 
 ```javascript
@@ -256,9 +262,8 @@ log(eventObj) {
 }
 ```
 
-
 ## Development
 
-This project uses [Jest](https://facebook.github.io/jest/) for testing. The tests can be found in the __tests__ folder and building + running the tests simply requires running the command: ```npm run-script build-and-test```
+This project uses [Jest](https://facebook.github.io/jest/) for testing. The tests can be found in the **tests** folder and building + running the tests simply requires running the command: `npm run-script build-and-test`
 
-If you are making changes to the ES6 implementation, simply run ```npm run-script build``` and it will transpile to the corresponding ES5 code.
+If you are making changes to the ES6 implementation, simply run `npm run-script build` and it will transpile to the corresponding ES5 code.
